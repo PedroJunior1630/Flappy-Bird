@@ -18,7 +18,7 @@ IMGS_PASSAROS = [
 
 pygame.font.init()
 
-TEXTO_FONT = pygame.font.SysFont('Arial',40)
+TEXTO_FONT = pygame.font.SysFont('arial',40)
 
 class Passaro():
     IMGS = IMGS_PASSAROS
@@ -166,4 +166,8 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
     for cano in canos:
         cano.desenhar(tela)
 
-    texto = TEXTO_FONT.render(f"Pontuação: {pontos}")
+    texto = TEXTO_FONT.render(f"Pontuação: {pontos}",1,(255,255,255))
+    tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
+
+    chao.desenhar(tela)
+    pygame.display.update()
