@@ -81,6 +81,7 @@ class Passaro():
             self.contagem_imagem =  self.TEMPO_ANIMACAO * 2
 
         #desenhar a imagem
+
         imagem_rotacionado =  pygame.transform.rotate(self.imagem,selrf.angulo)
         pos_centro_imagem = self.imagem.get_rect(topleft=(self.x,self.y)).center
         retangulo = imagem.rotacionando.get_rect(center=pos_centro_imagem)
@@ -88,7 +89,81 @@ class Passaro():
 
     def get_mask(self):
         pygame.mask.from_surface(self.imagem)
-        
+
 
 class Cano():
-    pass
+    DISTANCIA = 200
+    VELOCIDADE = 5
+
+    def __init__(self,x):
+        self.x = x
+        self.altura = 0
+        self.pos_topo = 0
+        self.pos_centro = 0 
+        self.CANO_TOPO = pygame.transform.flip(IMG_CANO, False, True)
+        self.CANO_BASE = IMG_CANO 
+        self.passou = False
+        self.definir_altura()
+
+    def definir_atura(self):
+        self.altura = random.randrange(50,450)
+        self.pos_base = self.altura - self.CANO_TOPO.get_height()
+        self.pos_base = self.altura + self.DISTANCIA
+
+    def mover(self):
+        self.x -= self.VELOCIDADE
+    
+    def desenhar(self,tela):
+        tela.blit(self.CANO_TOPO,(self.x,self.pos_topo))
+        tela.blit(self.CANO_BASE,(self.x,self.pos_base))
+
+
+    def colidir(self):
+        passaro_mask = passaro.get_mask()
+        topo_mask = pygame.mask.from_surface(self.CANO_TOPO)
+        base_mask = pygame.mask.from_surface(self.CANO_BASE)
+        
+        distancia_topo = (self.x - passaro.x, self.pos_topo - round(passaro.y))
+        distancia_base = (self.x - passaro.x, self.pos_base - round(passaro.y))
+
+        topo_ponto = passaro_mask.overlap(topo_mask, distancia_topo)
+        base_ponto = passaro_mask.overlap(base_mask, distancia_base)
+
+        if base_ponto or topo_ponto:
+            return True
+        else:
+            return False
+
+class Chao:
+    VELOCIDADE = 5
+    LARGURA = IMG_BASE.get_width()
+    IMAGEM = IMG_BASE
+
+    def __init__(self, y):
+        self.y = y
+        self.x1 = 0
+        self.x2 = self.LARGURA
+    
+    def mover(self):
+        self.x1 -= self.VELOCIDADE
+        self.x2 -= self.VELOCIDADE
+
+        if self.x1 + self.LARGURA < 0:
+            self.x1 = self.x1 + self.LARGURA
+        if self.x2 + self.LARGURA < 0:
+            self.x2 = self.x2 + self.LARGURA
+        
+    def desenhar(self, tela):
+        tela.blit(self.IMAGEM,(self.x1,self.y))
+        tela.blit(self.IMAGEM,(self.x2,self.y))
+
+    
+def desenhar_tela(tela, passaros, canos, chao, pontos):
+    tela.blit(IMG_FUNDO,(0,0))
+    for passaro in passaros:
+        passaro.desenhar(tela)
+
+    for cano in canos:
+        cano.desenhar(tela)
+
+    texto = TEXTO_FONT.render(f"Pontuação: {pontos}")
